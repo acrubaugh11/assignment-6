@@ -49,6 +49,25 @@ async function getRepos() {
             updatedDate = updatedDate.toLocaleTimeString('en-US', dateFormat).split(',')[0];
             repoUpdated.textContent = "Updated: " + updatedDate;
 
+            // Set watchers
+            let repoWatchers = document.createElement("p");
+            let watchers = repoItem.watchers;
+            repoWatchers.textContent = "watchers: " + watchers;
+
+            // Set languages
+            let repoLanguages = document.createElement("p");
+            try {
+                let languages = await fetch("https://api.github.com/repos/acrubaugh11/" + repoItem.name + "/languages");
+                languages = await languages.json();
+                
+                
+                // repoLanguages.textContent = "Languages: " + Object.keys(languages);
+
+            }
+            catch(err){
+                console.log(err);
+            }
+
 
             
             
@@ -57,6 +76,9 @@ async function getRepos() {
             galleryItem.appendChild(repoDesc);
             galleryItem.appendChild(repoCreated);
             galleryItem.appendChild(repoUpdated);
+            galleryItem.appendChild(repoWatchers);
+            galleryItem.appendChild(repoLanguages);
+
 
             gallery.appendChild(galleryItem);
     
