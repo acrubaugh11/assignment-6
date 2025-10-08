@@ -52,21 +52,31 @@ async function getRepos() {
             // Set watchers
             let repoWatchers = document.createElement("p");
             let watchers = repoItem.watchers;
-            repoWatchers.textContent = "watchers: " + watchers;
+            repoWatchers.textContent = "Watchers: " + watchers;
 
             // Set languages
             let repoLanguages = document.createElement("p");
             try {
                 let languages = await fetch("https://api.github.com/repos/acrubaugh11/" + repoItem.name + "/languages");
                 languages = await languages.json();
-                
-                
-                // repoLanguages.textContent = "Languages: " + Object.keys(languages);
+                repoLanguages.textContent = "Languages: " + Object.keys(languages).join(", ");
 
             }
             catch(err){
                 console.log(err);
             }
+
+            // // Set commits
+            // let repoCommits = document.createElement("p");
+            // try {
+            //     let commits = await fetch("https://api.github.com/repos/acrubaugh11/" + repoItem.name + "/commits");
+            //     commits = await commits.json();
+            //     console.log(commits.length);
+
+            // }
+            // catch(err){
+            //     console.log(err);
+            // }
 
 
             
@@ -78,6 +88,7 @@ async function getRepos() {
             galleryItem.appendChild(repoUpdated);
             galleryItem.appendChild(repoWatchers);
             galleryItem.appendChild(repoLanguages);
+            galleryItem.appendChild(repoCommits);
 
 
             gallery.appendChild(galleryItem);
