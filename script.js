@@ -12,7 +12,7 @@ async function getRepos() {
         let gallery = document.querySelector("main");
 
         
-        for(let i = 0; i < res.length; i++){
+        for(let i = 0; i < 4; i++){
             let galleryItem = document.createElement("div");
             galleryItem.classList.add("repo");
             let repoItem = res[i];
@@ -59,7 +59,14 @@ async function getRepos() {
             try {
                 let languages = await fetch("https://api.github.com/repos/acrubaugh11/" + repoItem.name + "/languages");
                 languages = await languages.json();
-                repoLanguages.textContent = "Languages: " + Object.keys(languages).join(", ");
+                languages = Object.keys(languages).join(", ");
+                if(languages > 1) {
+                    repoLanguages.textContent = "Languages: " + languages;
+                }
+                else {
+                    repoLanguages.textContent = "Languages: None"
+                }
+
 
             }
             catch(err){
@@ -67,16 +74,30 @@ async function getRepos() {
             }
 
             // // Set commits
-            // let repoCommits = document.createElement("p");
-            // try {
-            //     let commits = await fetch("https://api.github.com/repos/acrubaugh11/" + repoItem.name + "/commits");
-            //     commits = await commits.json();
-            //     console.log(commits.length);
+            let repoCommits = document.createElement("p");
+            try {
+                let commits = await fetch("https://api.github.com/repos/acrubaugh11/" + repoItem.name + "/commits?per_page=1");
+                let linkHeader = commits.headers.get("Link");
+                let totalCommits = 0;
+                if (linkHeader){
+                    let pageNumber = linkHeader.match(/&page=(\d+)>; rel="last"/);
+                    if (pageNumber){
+                        totalCommits = pageNumber[1];
+                    }
+                    else {
+                        totalCommits = 1;
+                    }
 
-            // }
-            // catch(err){
-            //     console.log(err);
-            // }
+                }
+                else {
+                    totalCommits = 1;
+                }
+                repoCommits.textContent = "Commits: " + totalCommits;
+            }
+            catch (err) {
+                console.log("Error: " + err);
+            }
+
 
 
             
