@@ -1,8 +1,12 @@
 'use strict';
 //  https://api.github.com/users/USERNAME/repos
-async function getRepos() {
+async function getRepos(username) {
     try {
-        let res = await fetch("https://api.github.com/users/acrubaugh11/repos?per_page=20");
+        let res = await fetch(`https://api.github.com/users/${username}/repos?per_page=20`);
+        if(res.status == 404){
+            alert("Invalid Username");
+            return;
+        }
         if(!res.ok){
             throw new Error(await res.text())
         }
@@ -10,9 +14,10 @@ async function getRepos() {
         console.log("Repos resolved: My Repo Data:", res)
 
         let gallery = document.querySelector("main");
+        gallery.innerHTML = "";
 
         
-        for(let i = 0; i < 4; i++){
+        for(let i = 0; i < 20; i++){
             let galleryItem = document.createElement("div");
             galleryItem.classList.add("repo");
             let repoItem = res[i];
@@ -20,9 +25,13 @@ async function getRepos() {
             // galleryItem.innerHTML = `<a href="https://github.com/${repoItem.full_name}" target="_blank">${repoItem.name}</a>`;
             // Set the link to the repo name
             let repoLink = document.createElement("a");
+            let githubIcon = document.createElement("img");
+            githubIcon.classList.toggle("icon")
             repoLink.href = "https://github.com/" + repoItem.full_name;
             repoLink.target = "_blank";
-            repoLink.textContent = repoItem.name;
+            githubIcon.src = "images/github.svg"
+            repoLink.appendChild(githubIcon);
+            repoLink.appendChild(document.createTextNode(repoItem.name));
 
             // Set the description
             let repoDesc = document.createElement("p");
@@ -57,15 +66,11 @@ async function getRepos() {
             // Set languages
             let repoLanguages = document.createElement("p");
             try {
-                let languages = await fetch("https://api.github.com/repos/acrubaugh11/" + repoItem.name + "/languages");
+                let languages = await fetch(`https://api.github.com/repos/${username}/` + repoItem.name + "/languages");
                 languages = await languages.json();
                 languages = Object.keys(languages).join(", ");
-                if(languages > 1) {
-                    repoLanguages.textContent = "Languages: " + languages;
-                }
-                else {
-                    repoLanguages.textContent = "Languages: None"
-                }
+                repoLanguages.textContent = "Languages: " + languages;
+
 
 
             }
@@ -76,7 +81,7 @@ async function getRepos() {
             // // Set commits
             let repoCommits = document.createElement("p");
             try {
-                let commits = await fetch("https://api.github.com/repos/acrubaugh11/" + repoItem.name + "/commits?per_page=1");
+                let commits = await fetch(`https://api.github.com/repos/${username}/${repoItem.name}/commits?per_page=1`);
                 let linkHeader = commits.headers.get("Link");
                 let totalCommits = 0;
                 if (linkHeader){
@@ -125,5 +130,14 @@ async function getRepos() {
     }
 }
 
+// Handle search bar to dynamically get repos
+let searchBar = document.getElementById("userSearch");
+searchBar.addEventListener("submit", ((e) => {
+    e.preventDefault();
+    const username = document.getElementById("username").value;
+    if(!username){
+        return;
+    }
+    getRepos(username);
 
-getRepos();
+}));
